@@ -14,6 +14,7 @@
 #include "core/Defs.h"
 #include "core/Partitioner.h"
 #include "core/Table.h"
+#include "const.h"
 
 namespace star {
 namespace ycsb {
@@ -26,7 +27,7 @@ public:
   using RandomType = typename DatabaseType::RandomType;
   using StorageType = Storage;
 
-  static constexpr std::size_t keys_num = 10;
+  static constexpr std::size_t keys_num = 4;
 
   ReadModifyWrite(std::size_t coordinator_id, std::size_t partition_id,
                   DatabaseType &db, const ContextType &context,
@@ -89,6 +90,10 @@ public:
               local_random.a_string(YCSB_FIELD_SIZE, YCSB_FIELD_SIZE));
         }
 
+        if (verbose) {
+            std::cout << "work_id => " << worker_id << " : " << key << std::endl;
+        }
+
         this->update(ycsbTableID, context.getPartitionID(key),
                      storage.ycsb_keys[i], storage.ycsb_values[i]);
       }
@@ -103,6 +108,8 @@ public:
       }
     }
 
+    if (verbose)
+        std::cout << std::endl;
     return TransactionResult::READY_TO_COMMIT;
   }
 

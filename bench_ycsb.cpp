@@ -5,7 +5,7 @@
 DEFINE_int32(read_write_ratio, 80, "read write ratio");
 DEFINE_int32(read_only_ratio, 0, "read only transaction ratio");
 DEFINE_int32(cross_ratio, 0, "cross partition transaction ratio");
-DEFINE_int32(keys, 200000, "keys in a partition.");
+DEFINE_int32(keys, 1000000, "keys in a partition.");
 DEFINE_double(zipf, 0, "skew factor");
 
 DEFINE_int32(nop_prob, 0, "prob of transactions having nop, out of 10000");

@@ -176,7 +176,7 @@ public:
     message->set_worker_id(id);
   }
 
-  void generate_transactions() {
+  void generate_transactions() {  // generate transactions
     if (!context.calvin_same_batch || !init_transaction) {
       init_transaction = true;
       for (auto i = id; i < transactions.size(); i += context.worker_num) {

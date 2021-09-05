@@ -7,6 +7,7 @@
 #include "benchmark/ycsb/Context.h"
 #include "benchmark/ycsb/Random.h"
 #include "common/Zipf.h"
+#include "const.h"
 
 namespace star {
 namespace ycsb {
@@ -25,18 +26,27 @@ public:
     int readOnly = random.uniform_dist(1, 100);
     int crossPartition = random.uniform_dist(1, 100);
 
+    if (verbose) {
+        if (readOnly <= 50) {
+            std::cout << "4 reads" << std::endl;
+        } else {
+            std::cout << "4 writes" << std::endl;
+        }
+    }
+
     for (auto i = 0u; i < N; i++) {
       // read or write
 
-      if (readOnly <= context.readOnlyTransaction) {
+      if (readOnly <= 50) {
         query.UPDATE[i] = false;
       } else {
-        int readOrWrite = random.uniform_dist(1, 100);
-        if (readOrWrite <= context.readWriteRatio) {
-          query.UPDATE[i] = false;
-        } else {
-          query.UPDATE[i] = true;
-        }
+        query.UPDATE[i] = true;
+//        int readOrWrite = random.uniform_dist(1, 100);
+//        if (readOrWrite <= context.readWriteRatio) {
+//          query.UPDATE[i] = false;
+//        } else {
+//          query.UPDATE[i] = true;
+//        }
       }
 
       int32_t key;

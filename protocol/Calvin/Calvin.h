@@ -64,7 +64,7 @@ public:
 
       if (CalvinHelper::partition_id_to_lock_manager_id(
               writeKey.get_partition_id(), n_lock_manager,
-              replica_group_size) != lock_manager_id) {
+              replica_group_size) != lock_manager_id) {  // why it has something to do with replica_group_size
         continue;
       }
 

@@ -151,7 +151,7 @@ public:
       }
 
       workers.push_back(manager);
-    } else if (context.protocol == "Calvin") {
+    } else if (context.protocol == "Calvin") {  // creating a worker, for Calvin
 
       using TransactionType = star::CalvinTransaction;
       using WorkloadType =
@@ -178,7 +178,7 @@ public:
         all_executors.push_back(w.get());
       }
       // push manager to workers
-      workers.push_back(manager);
+      workers.push_back(manager);  // extra worker for manager thread
 
       for (auto i = 0u; i < context.worker_num; i++) {
         static_cast<CalvinExecutor<WorkloadType> *>(workers[i].get())

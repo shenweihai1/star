@@ -27,7 +27,7 @@ public:
         context(context) {
     workerStopFlag.store(false);
     ioStopFlag.store(false);
-    LOG(INFO) << "Coordinator initializes " << context.worker_num
+    LOG(INFO) << "Coordinator initializes (# of partitions) " << context.worker_num
               << " workers.";
     workers = WorkerFactory::create_workers(id, db, context, workerStopFlag);
 
@@ -100,8 +100,9 @@ public:
                n_si_in_serializable = 0, n_network_size = 0;
 
       for (auto i = 0u; i < workers.size(); i++) {
-
-        n_commit += workers[i]->n_commit.load();
+        auto tmp = workers[i]->n_commit.load();
+        LOG(INFO) << "work_id: " << i << " commit: " << tmp << std::endl;
+        n_commit += tmp;
         workers[i]->n_commit.store(0);
 
         n_abort_no_retry += workers[i]->n_abort_no_retry.load();
@@ -162,7 +163,8 @@ public:
               << 1.0 * total_network_size / total_commit
               << ", si_in_serializable: " << total_si_in_serializable << " "
               << 100.0 * total_si_in_serializable / total_commit << " %"
-              << ", local: " << 100.0 * total_local / total_commit << " %";
+              << ", local: " << 100.0 * total_local / total_commit << " %"
+              << ", count: " << count << std::endl;
 
     workerStopFlag.store(true);
 
