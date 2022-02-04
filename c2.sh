@@ -1,2 +1,12 @@
-rm 2.log
-./bench_ycsb --logtostderr=1 --id=2 --servers="127.0.0.1:8000;127.0.0.1:8001;127.0.0.1:8002" --protocol=Calvin --partition_num=2 --threads=2 --batch_size=10000 --replica_group=3 --lock_manager=1 --read_write_ratio=50 --cross_ratio=0 > ./2.log 2>&1
+#!/bin/bash
+pkill -f bench_ycsb
+
+### single replica
+# ./bench_ycsb --logtostderr=1 --id=0 --servers="127.0.0.1:8000" --protocol=Calvin --partition_num=4 --threads=4 --batch_size=10000 --replica_group=1 --lock_manager=2 --read_write_ratio=90 --cross_ratio=0
+
+trd=$1
+let lock=trd/4
+
+echo "./bench_ycsb --logtostderr=1 --id=2 --servers='10.1.0.7:8000;10.1.0.8:8000;10.1.0.9:8000' --protocol=Calvin --partition_num=$trd --threads=$trd --batch_size=10000 --replica_group=3 --lock_manager=$lock --read_write_ratio=50 --cross_ratio=0 > ./xxxx14/$trd.log 2>&1"
+
+./bench_ycsb --logtostderr=1 --id=2 --servers="10.1.0.7:8000;10.1.0.8:8000;10.1.0.9:8000" --protocol=Calvin --partition_num=$trd --threads=$trd --batch_size=10000 --replica_group=3 --lock_manager=$lock --read_write_ratio=50 --cross_ratio=0 > ./xxxx14/$trd.log 2>&1
