@@ -36,7 +36,7 @@ public:
     std::unique_ptr<TransactionType> p;
 
     if (context.workloadType == TPCCWorkloadType::MIXED) {
-      if (x <= 50) {
+      if (x <= 50) {  // only support two categories, 50-50
         p = std::make_unique<NewOrder<Transaction>>(
             coordinator_id, partition_id, db, context, random, partitioner,
             storage);

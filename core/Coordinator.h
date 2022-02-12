@@ -30,6 +30,7 @@ public:
     LOG(INFO) << "Coordinator initializes (# of partitions) " << context.worker_num
               << " workers.";
     workers = WorkerFactory::create_workers(id, db, context, workerStopFlag);
+    LOG(INFO) << "completed initialization: " << workers.size() << std::endl;
 
     // init sockets vector
     inSockets.resize(context.io_thread_num);
@@ -174,7 +175,18 @@ public:
     }
 
     // gather throughput
-    double sum_commit = gather(1.0 * total_commit / count);
+    double sum_commit=0;
+    if (id==1) {
+      sum_commit = gather(0);
+      std::cout << "running on id=1\n";
+    } else if (id==2) {
+       sum_commit = gather(0);
+       std::cout << "running on id=2\n";
+    } else { // id==0
+       sum_commit = gather(1.0 * total_commit / count);
+       std::cout << "running on id=0\n";
+    }
+
     if (id == 0) {
       LOG(INFO) << "total commit: " << sum_commit;
     }

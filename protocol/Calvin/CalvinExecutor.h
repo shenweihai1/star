@@ -81,6 +81,7 @@ public:
 
   void start() override {
     LOG(INFO) << "CalvinExecutor " << id << " started. ";
+    auto start = std::chrono::steady_clock::now();
 
     for (;;) {
 
@@ -93,9 +94,15 @@ public:
           return;
         }
       } while (status != ExecutorStatus::Analysis);
+      auto end = std::chrono::steady_clock::now();
+      auto diff = end - start;
+      auto timeTaken = std::chrono::duration <long double, std::milli> (diff).count()  ;
+      //LOG(INFO) << "Time Taken1: " << timeTaken << " millis\n";
+      start = std::chrono::steady_clock::now();
 
-      n_started_workers.fetch_add(1);
+      n_started_workers.fetch_add(1);  // have to generate enough transactions
       generate_transactions();
+      //LOG(INFO) << "CalvinExecutor::start()->generate_transactions(), id=" << id << std::endl;
       n_complete_workers.fetch_add(1);
 
       // wait to Execute
@@ -126,7 +133,12 @@ public:
     }
   }
 
-  void onExit() override {}
+  void onExit() override {
+    LOG(INFO) << "Worker " << id << ", len of #: " << percentile.size()
+              << " latency: " << percentile.nth(50)/1000.0
+              << " ms (50%) " << percentile.nth(75)/1000.0 << " ms (75%) "
+              << percentile.nth(95)/1000.0 << " ms (95%) " << percentile.nth(99)/1000.0 << " ms (99%)";
+  }
 
   void push_message(Message *message) override { in_queue.push(message); }
 
@@ -176,10 +188,11 @@ public:
     message->set_worker_id(id);
   }
 
-  void generate_transactions() {  // generate transactions
+  void generate_transactions() {  // generate transactions (to generate batched transactions at first)
     if (!context.calvin_same_batch || !init_transaction) {
       init_transaction = true;
-      for (auto i = id; i < transactions.size(); i += context.worker_num) {
+      // std::cout << "###### for generating transactions, coordinator_id: " << coordinator_id << ", id: " << id << "\n";
+      for (auto i = id; i < transactions.size(); i += context.worker_num) { // XXX, generate transactions on each machine with same random seed and not through network
         // generate transaction
         auto partition_id = random.uniform_dist(0, context.partition_num - 1);
         transactions[i] =
@@ -286,8 +299,13 @@ public:
           all_executors[worker]->transaction_queue.push(transactions[i].get());
         }
         // only count once
-        if (i % n_lock_manager == id) {
+        if (i % n_lock_manager == id) {  // count it as committed
           n_commit.fetch_add(1);
+          auto latency = std::chrono::duration_cast<std::chrono::microseconds>(
+                         std::chrono::steady_clock::now() - transactions[i]->startTime)
+                          .count();
+          if (rand() % 25 == 0) // take 1 out 25 of transactions
+            percentile.add(latency);
         }
       } else {
         // only count once
@@ -433,6 +451,7 @@ private:
   DatabaseType &db;
   const ContextType &context;
   std::vector<std::unique_ptr<TransactionType>> &transactions;
+  Percentile<int64_t> percentile;
   std::vector<StorageType> &storages;
   std::atomic<uint32_t> &lock_manager_status, &worker_status;
   std::atomic<uint32_t> &n_complete_workers, &n_started_workers;

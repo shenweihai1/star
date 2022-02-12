@@ -1,9 +1,6 @@
 #!/bin/bash
 pkill -f bench_ycsb
 
-### single replica
-# ./bench_ycsb --logtostderr=1 --id=0 --servers="127.0.0.1:8000" --protocol=Calvin --partition_num=4 --threads=4 --batch_size=10000 --replica_group=1 --lock_manager=2 --read_write_ratio=90 --cross_ratio=0
-
 trd=$1
 let lock=trd/4
 

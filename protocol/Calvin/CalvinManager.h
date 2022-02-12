@@ -16,7 +16,7 @@
 
 namespace star {
 
-template <class Workload> class CalvinManager : public star::Manager {
+template <class Workload> class CalvinManager : public star::Manager {  // the manager for Calvin
 public:
   using base_type = star::Manager;
 
@@ -41,7 +41,7 @@ public:
     transactions.resize(context.batch_size);
   }
 
-  void coordinator_start() override {
+  void coordinator_start() override {  // to be executed on the leader replica
 
     std::size_t n_workers = context.worker_num;
     std::size_t n_coordinators = context.coordinator_num;
@@ -50,8 +50,8 @@ public:
 
       // the coordinator on each machine generates
       // a batch of transactions using the same random seed.
-
-      // LOG(INFO) << "Seed: " << random.get_seed();
+      auto start = std::chrono::steady_clock::now();
+      //LOG(INFO) << "# of transactions: " << transactions.size() << std::endl;
       n_started_workers.store(0);
       n_completed_workers.store(0);
       signal_worker(ExecutorStatus::Analysis);
@@ -76,12 +76,16 @@ public:
       wait_all_workers_finish();
       // wait for all machines until they finish the execution phase.
       wait4_ack();
+      auto end = std::chrono::steady_clock::now();
+      auto diff = end - start;
+      auto timeTaken = std::chrono::duration <long double, std::milli> (diff).count()  ;
+      //LOG(INFO) << "Time Taken2: " << timeTaken << " millis\n";
     }
 
     signal_worker(ExecutorStatus::EXIT);
   }
 
-  void non_coordinator_start() override {
+  void non_coordinator_start() override {  // on the follower replicas
 
     std::size_t n_workers = context.worker_num;
     std::size_t n_coordinators = context.coordinator_num;

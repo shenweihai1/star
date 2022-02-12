@@ -178,7 +178,7 @@ public:
         all_executors.push_back(w.get());
       }
       // push manager to workers
-      workers.push_back(manager);  // extra worker for manager thread
+      workers.push_back(manager);  // extra worker for manager thread (1 manager + thread workers)
 
       for (auto i = 0u; i < context.worker_num; i++) {
         static_cast<CalvinExecutor<WorkloadType> *>(workers[i].get())

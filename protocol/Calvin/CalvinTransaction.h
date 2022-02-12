@@ -24,7 +24,7 @@ public:
       : coordinator_id(coordinator_id), partition_id(partition_id),
         startTime(std::chrono::steady_clock::now()), partitioner(partitioner) {
     reset();
-  }
+  }  // it already include startTime
 
   virtual ~CalvinTransaction() = default;
 
