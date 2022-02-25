@@ -32,10 +32,19 @@ public:
                                                     std::size_t partition_id,
                                                     StorageType &storage) {
 
-    std::unique_ptr<TransactionType> p =
+    auto x = random.uniform_dist(1, 100);
+    std::unique_ptr<TransactionType> p ;
+    if (x <= 50) {
+      p =
         std::make_unique<ReadModifyWrite<Transaction>>(
             coordinator_id, partition_id, db, context, random, partitioner,
             storage);
+    } else {
+      p =
+        std::make_unique<ReadTrans<Transaction>>(
+            coordinator_id, partition_id, db, context, random, partitioner,
+            storage);
+    }
 
     return p;
   }

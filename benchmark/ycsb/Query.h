@@ -23,31 +23,8 @@ public:
                           Random &random) const {
 
     YCSBQuery<N> query;
-    int readOnly = random.uniform_dist(1, 100);
-    int crossPartition = random.uniform_dist(1, 100);
-
-    if (verbose) {
-        if (readOnly <= 50) {
-            std::cout << "4 reads" << std::endl;
-        } else {
-            std::cout << "4 writes" << std::endl;
-        }
-    }
-
     for (auto i = 0u; i < N; i++) {
-      // read or write
-
-      if (readOnly <= 50) {
-        query.UPDATE[i] = false;
-      } else {
-        query.UPDATE[i] = true;
-//        int readOrWrite = random.uniform_dist(1, 100);
-//        if (readOrWrite <= context.readWriteRatio) {
-//          query.UPDATE[i] = false;
-//        } else {
-//          query.UPDATE[i] = true;
-//        }
-      }
+      query.UPDATE[i] = true;
 
       int32_t key;
 
@@ -56,23 +33,43 @@ public:
       do {
         retry = false;
 
-        if (context.isUniform) {
-          key = random.uniform_dist(
+        key = random.uniform_dist(
               0, static_cast<int>(context.keysPerPartition) - 1);
-        } else {
-          key = Zipf::globalZipf().value(random.next_double());
-        }
 
-        if (crossPartition <= context.crossPartitionProbability &&
-            context.partition_num > 1) {
-          auto newPartitionID = partitionID;
-          while (newPartitionID == partitionID) {
-            newPartitionID = random.uniform_dist(0, context.partition_num - 1);
+        query.Y_KEY[i] = context.getGlobalKeyID(key, partitionID);
+
+        for (auto k = 0u; k < i; k++) {
+          if (query.Y_KEY[k] == query.Y_KEY[i]) {
+            retry = true;
+            break;
           }
-          query.Y_KEY[i] = context.getGlobalKeyID(key, newPartitionID);
-        } else {
-          query.Y_KEY[i] = context.getGlobalKeyID(key, partitionID);
         }
+      } while (retry);
+    }
+    return query;
+  }
+};
+
+template <std::size_t N> class makeYCSBQueryRead {
+public:
+    YCSBQuery<N> operator()(const Context &context, uint32_t partitionID,
+                          Random &random) const {
+
+    YCSBQuery<N> query;
+    for (auto i = 0u; i < N; i++) {
+      query.UPDATE[i] = false;
+
+      int32_t key;
+
+      // generate a key in a partition
+      bool retry;
+      do {
+        retry = false;
+
+        key = random.uniform_dist(
+              0, static_cast<int>(context.keysPerPartition) - 1);
+
+        query.Y_KEY[i] = context.getGlobalKeyID(key, partitionID);
 
         for (auto k = 0u; k < i; k++) {
           if (query.Y_KEY[k] == query.Y_KEY[i]) {
