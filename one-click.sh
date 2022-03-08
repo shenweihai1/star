@@ -37,6 +37,7 @@ experiment3() {
   ./install.sh 
   make clean
   ./compile.sh
+  mkdir -p results
 
   ./c0-single.sh 4
   ./c0-single.sh 8
@@ -45,6 +46,7 @@ experiment3() {
   ./c0-single.sh 20 
   ./c0-single.sh 24
   ./c0-single.sh 28 
+  ag 'total commit:' xxxx14 > results/calvin.log
 }
 
 #experiment1 16

@@ -1,5 +1,6 @@
 #!/bin/bash
 pkill -f bench_ycsb
+mkdir -p xxxx14
 
 trd=$1
 let lock=trd/4
