@@ -81,7 +81,7 @@ public:
 
   void start() override {
     LOG(INFO) << "CalvinExecutor " << id << " started. ";
-    auto start = std::chrono::steady_clock::now();
+    //auto start = std::chrono::steady_clock::now();
 
     for (;;) {
 
@@ -94,11 +94,11 @@ public:
           return;
         }
       } while (status != ExecutorStatus::Analysis);
-      auto end = std::chrono::steady_clock::now();
-      auto diff = end - start;
-      auto timeTaken = std::chrono::duration <long double, std::milli> (diff).count()  ;
+      //auto end = std::chrono::steady_clock::now();
+      //auto diff = end - start;
+      //auto timeTaken = std::chrono::duration <long double, std::milli> (diff).count()  ;
       //LOG(INFO) << "Time Taken1: " << timeTaken << " millis\n";
-      start = std::chrono::steady_clock::now();
+      //start = std::chrono::steady_clock::now();
 
       n_started_workers.fetch_add(1);  // have to generate enough transactions
       generate_transactions();
@@ -301,11 +301,11 @@ public:
         // only count once
         if (i % n_lock_manager == id) {  // count it as committed
           n_commit.fetch_add(1);
-          auto latency = std::chrono::duration_cast<std::chrono::microseconds>(
-                         std::chrono::steady_clock::now() - transactions[i]->startTime)
-                          .count();
-          if (rand() % 25 == 0) // take 1 out 25 of transactions
-            percentile.add(latency);
+          //auto latency = std::chrono::duration_cast<std::chrono::microseconds>(
+          //               std::chrono::steady_clock::now() - transactions[i]->startTime)
+          //                .count();
+          //if (rand() % 25 == 0) // take 1 out 25 of transactions
+          //  percentile.add(latency);
         }
       } else {
         // only count once

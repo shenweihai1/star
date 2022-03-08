@@ -50,7 +50,7 @@ public:
 
       // the coordinator on each machine generates
       // a batch of transactions using the same random seed.
-      auto start = std::chrono::steady_clock::now();
+      //auto start = std::chrono::steady_clock::now();
       //LOG(INFO) << "# of transactions: " << transactions.size() << std::endl;
       n_started_workers.store(0);
       n_completed_workers.store(0);
@@ -76,9 +76,9 @@ public:
       wait_all_workers_finish();
       // wait for all machines until they finish the execution phase.
       wait4_ack();
-      auto end = std::chrono::steady_clock::now();
-      auto diff = end - start;
-      auto timeTaken = std::chrono::duration <long double, std::milli> (diff).count()  ;
+      //auto end = std::chrono::steady_clock::now();
+      //auto diff = end - start;
+      //auto timeTaken = std::chrono::duration <long double, std::milli> (diff).count()  ;
       //LOG(INFO) << "Time Taken2: " << timeTaken << " millis\n";
     }
 
